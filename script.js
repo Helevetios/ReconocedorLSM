@@ -7,6 +7,8 @@ let enableWebcamButton;
 let webcamRunning = false;
 let modelCustom;
 let predict = false;
+var letterDiv = document.getElementById('letterDiv');
+var letterText = document.getElementById('letterText');
 
 const createHandLandmarker = async () => {
     const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm");
@@ -54,6 +56,7 @@ function enableCam(event) {
         webcamRunning = true;
         predictButton.style.display = "block";
         enableWebcamButton.remove();
+        letterDiv.style.visibility = 'visible';
     }
     // getUsermedia parameters.
     const constraints = {
@@ -165,7 +168,17 @@ function predictLoop() {
             let prediction = modelCustom.predict(imageFeatures.expandDims()).squeeze();
             let highestIndex = prediction.argMax().arraySync();
             let predictionArray = prediction.arraySync();
-            PREDICT.innerText = 'Prediccion: ' + CLASS_NAMES[highestIndex] + ' con ' + Math.floor(predictionArray[highestIndex] * 100) + '% confianza';
+            PREDICT.innerText = CLASS_NAMES[highestIndex] + ' con ' + Math.floor(predictionArray[highestIndex] * 100) + '% confianza';
+            var predictRate = Math.floor(predictionArray[highestIndex] * 100);
+
+            setTimeout(function () {
+                if (predictRate > 90 && CLASS_NAMES[highestIndex] !== 'Palma') {
+                    letterText.style.color = 'rgb(245, 116, 116)';
+                } else {
+                    letterText.style.color = 'black';
+                }
+            }, 1000);
+
         });
 
         window.requestAnimationFrame(predictLoop);
@@ -211,6 +224,7 @@ dropdownMenu.addEventListener('click', function (event) {
 
 async function load(option) {
     console.log(option)
+    letterText.textContent = option.toUpperCase();
     let URL = '/models/' + option + '/'
     modelCustom = await tf.loadLayersModel(URL + 'modelCustom.json');
     modelCustom.summary();
