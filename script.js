@@ -171,13 +171,11 @@ function predictLoop() {
             PREDICT.innerText = CLASS_NAMES[highestIndex] + ' con ' + Math.floor(predictionArray[highestIndex] * 100) + '% confianza';
             var predictRate = Math.floor(predictionArray[highestIndex] * 100);
 
-            setTimeout(function () {
-                if (predictRate > 90 && CLASS_NAMES[highestIndex] !== 'Palma') {
-                    letterText.style.color = 'rgb(245, 116, 116)';
-                } else {
-                    letterText.style.color = 'black';
-                }
-            }, 1000);
+            if (predictRate >= 99 && CLASS_NAMES[highestIndex] !== 'Palma') {
+                letterText.style.color = 'rgb(245, 116, 116)';
+            } else {
+                letterText.style.color = 'black';
+            }
 
         });
 
